@@ -39,11 +39,24 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.google.gson.annotations.SerializedName
 import com.google.mlkit.showcase.translate.R
 import com.google.mlkit.showcase.translate.analyzer.TextAnalyzer
 import com.google.mlkit.showcase.translate.util.Language
 import com.google.mlkit.showcase.translate.util.ScopedExecutor
 import kotlinx.android.synthetic.main.main_fragment.*
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.POST
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -51,7 +64,9 @@ import kotlin.math.abs
 import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
-
+import okhttp3.ResponseBody
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 class MainFragment : Fragment() {
 
     companion object {
@@ -88,6 +103,7 @@ class MainFragment : Fragment() {
     private lateinit var scopedExecutor: ScopedExecutor
 
     override fun onCreateView(
+
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
@@ -104,7 +120,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        //sendJsonPostRequest("K'iche", "hola")
         container = view as ConstraintLayout
         viewFinder = container.findViewById(R.id.viewfinder)
 
@@ -211,7 +227,7 @@ class MainFragment : Fragment() {
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
-    private fun bindCameraUseCases(cameraProvider: ProcessCameraProvider) {
+     private fun bindCameraUseCases(cameraProvider: ProcessCameraProvider) {
         // Get screen metrics used to setup camera for full screen resolution
         val metrics = DisplayMetrics().also { viewFinder.display.getRealMetrics(it) }
         Log.d(TAG, "Screen metrics: ${metrics.widthPixels} x ${metrics.heightPixels}")
@@ -244,13 +260,16 @@ class MainFragment : Fragment() {
                     )
                 )
             }
+        //consumo_Api("q'anjob'al", "Bienvenidos")
 
         var text_back:String = "";
+        var text_back_old:Int = 0
         viewModel.sourceText.observe(viewLifecycleOwner, Observer { text_back = it;
             if(text_back !== srcText.text && text_back !== ""){
                 srcText.text = text_back
-                if(text_back.length>0){
-                    translatedText.text = text_back+"hola"
+                if(text_back.length > 0 && text_back_old !== text_back.length){
+                    text_back_old = text_back.length
+                    consumo_Api("k'iche'", text_back)
                 }
                 Log.i("TAG","Por aqui vamos " +  srcText.text )
             }
@@ -321,6 +340,7 @@ class MainFragment : Fragment() {
         val textX = (surfaceWidth - textBounds.width()) / 2f
         val textY = rectBottom + textBounds.height() + 15f // put text below rect and 15f padding
         canvas.drawText(getString(R.string.overlay_help), textX, textY, textPaint)
+        //canvas.drawText(texto_msg, textX, textY, textPaint)
         holder.unlockCanvasAndPost(canvas)
     }
 
@@ -373,4 +393,86 @@ class MainFragment : Fragment() {
             requireContext(), it
         ) == PackageManager.PERMISSION_GRANTED
     }
+
+    private fun sendJsonPostRequest(lengua:String, frase:String) {
+
+        val json = JSONObject()
+        json.put("language", lengua)
+        json.put("text", frase)
+        Log.e(TAG, "Esto fue la respuesta ERROR 1" )
+
+
+        val url = URL("https://lenbeat.azurewebsites.net/api/mayan_languages")
+        val httpURLConnection = url.openConnection() as HttpURLConnection
+        httpURLConnection.requestMethod = "POST"
+        httpURLConnection.setRequestProperty("Content-Type", "application/json; utf-8")
+        httpURLConnection.setRequestProperty("Accept", "application/json")
+        httpURLConnection.setRequestProperty("Authorization", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9sb2dpbiI6MSwibmFtZSI6ImxlbmJlYXQiLCJpYXQiOjE2ODI1NjIxMDd9.60qjkzp_PCYEZgMny5jSETrAmmx_T_N_CIfwYQKN7MA")
+        httpURLConnection.doOutput = true
+        Log.i(TAG, "Esto fue la respuesta ERROR 2" )
+
+        try {
+            val outputStreamWriter = OutputStreamWriter(httpURLConnection.outputStream, "UTF-8")
+            outputStreamWriter.write(json.toString())
+            outputStreamWriter.flush()
+            outputStreamWriter.close()
+            Log.i(TAG, "Esto fue la respuesta ERROR 3" )
+
+            if (httpURLConnection.responseCode == HttpURLConnection.HTTP_OK) {
+                val response = httpURLConnection.inputStream.bufferedReader().use { it.readText() }
+                Log.w(TAG, "Esto fue la respuesta " + response, )
+            } else {
+                Log.e(TAG, "Esto fue la respuesta ERROR " )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e(TAG, "Esto fue la respuesta ERROR 5 " + e.toString() )
+        } finally {
+            httpURLConnection.disconnect()
+        }
+    }
+
+    data class MayaLanguageText(
+        @SerializedName("language") val language: String,
+        @SerializedName("text") val text: String
+    )
+
+    interface MayaLanguageAPI {
+        @POST("/api/mayan_languages")
+        fun createMayaLanguageText(
+            @Header("Authorization") token: String,
+            @Body requestBody: List<MayaLanguageText>
+        ): Call<ResponseBody>
+    }
+
+
+     fun consumo_Api(lenguaje:String, frase:String){
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9sb2dpbiI6MSwibmFtZSI6ImxlbmJlYXQiLCJpYXQiOjE2ODI1NjIxMDd9.60qjkzp_PCYEZgMny5jSETrAmmx_T_N_CIfwYQKN7MA"
+
+        val apiService = Retrofit.Builder()
+            .baseUrl("https://lenbeat.azurewebsites.net")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MayaLanguageAPI::class.java)
+
+        val languageText = MayaLanguageText( lenguaje, frase)
+        val requestBody = listOf(languageText)
+        apiService.createMayaLanguageText(token, requestBody).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    translatedText.text = Json.encodeToString(response.body()?.string()).replace("\\n", "").trim()
+                } else {
+                    translatedText.text = Json.encodeToString(response.body()?.string()).replace("\\n", "").trim()
+                    val errorMessage = "Error al crear el idioma maya: ${response.code()}"
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.i("MayanLanguageApi", "Error: ${t.message}")
+            }
+        })
+    }
+
+
+
 }

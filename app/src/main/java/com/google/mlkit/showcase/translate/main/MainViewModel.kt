@@ -19,6 +19,7 @@ package com.google.mlkit.showcase.translate.main
 
 import android.app.Application
 import android.os.Handler
+import android.telecom.Call
 import android.util.LruCache
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MediatorLiveData
@@ -37,7 +38,16 @@ import com.google.mlkit.showcase.translate.main.MainFragment.Companion.DESIRED_W
 import com.google.mlkit.showcase.translate.util.Language
 import com.google.mlkit.showcase.translate.util.ResultOrError
 import com.google.mlkit.showcase.translate.util.SmoothedMutableLiveData
+import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.POST
+import java.io.ByteArrayInputStream
 import java.util.concurrent.Executor
+
+import java.net.HttpURLConnection
+import java.net.URL
+import org.json.JSONObject
+import java.io.OutputStreamWriter
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
@@ -158,4 +168,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         private const val NUM_TRANSLATORS = 1
     }
+
+
+
+
 }
