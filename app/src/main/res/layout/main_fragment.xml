@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".5" />
+        app:layout_constraintGuide_percent="0.500684" />
 
     <TextView
         android:id="@+id/srcLang"
@@ -72,6 +72,7 @@
         android:scrollbars="vertical"
         app:layout_constraintBottom_toTopOf="@+id/divider"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/srcLang">
 
@@ -82,6 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
+            android:textSize="16sp"
             tools:text="source text" />
     </ScrollView>
 
@@ -108,7 +110,7 @@
     <ScrollView
         android:id="@+id/translatedTextScrollView"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="80dp"
         android:layout_marginBottom="4dp"
         android:fillViewport="true"
         android:scrollbars="vertical"
@@ -125,20 +127,9 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="4dp"
+            android:textSize="16sp"
             tools:text="translated text" />
     </ScrollView>
-
-    <View
-        android:id="@+id/divider2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="20dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/translatedTextScrollView" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -161,5 +152,72 @@
         android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="@id/progressBar" />
 
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="20dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/translatedTextScrollView" />
 
+    <Spinner
+        android:id="@+id/targetLangSelectorfin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider2" />
+
+
+
+    <ScrollView
+        android:id="@+id/translatedTextScrollViewfin"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginBottom="4dp"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/dividerfin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/targetLangSelectorfin">
+
+
+
+        <TextView
+            android:id="@+id/translatedTextfin"
+            style="@style/TranslatedText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="4dp"
+            android:textSize="16sp"
+            tools:text="translated text fin" />
+    </ScrollView>
+
+    <View
+        android:id="@+id/dividerfin"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="20dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/translatedTextScrollViewfin" />
+
+    <Button
+        android:id="@+id/btn_traducir"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Traducir a lengua maya"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

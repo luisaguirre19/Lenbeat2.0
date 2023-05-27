@@ -16,8 +16,8 @@
   -->
 
 <resources>
-    <string name="app_name">ML Kit Translate Showcase</string>
+    <string name="app_name">Lenbeat</string>
     <string name="content_description_google_translate_attribution">LENBEAT</string>
     <string name="overlay_help">Lenbeat</string>
-    <string name="downloading_model_files">Downloading model files…</string>
+    <string name="downloading_model_files">Espera... descargando paquetes</string>
 </resources>

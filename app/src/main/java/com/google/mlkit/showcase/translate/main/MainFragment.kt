@@ -29,6 +29,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.core.Camera
@@ -95,6 +96,7 @@ class MainFragment : Fragment() {
     private var imageAnalyzer: ImageAnalysis? = null
     private lateinit var container: ConstraintLayout
     private lateinit var viewFinder: PreviewView
+    private lateinit var btn_traducir: Button
 
     /** Blocking camera and inference operations are performed using this executor. */
     private lateinit var cameraExecutor: ExecutorService
@@ -124,9 +126,39 @@ class MainFragment : Fragment() {
         container = view as ConstraintLayout
         viewFinder = container.findViewById(R.id.viewfinder)
 
+        btn_traducir = container.findViewById(R.id.btn_traducir)
+
         // Initialize our background executor
         cameraExecutor = Executors.newCachedThreadPool()
         scopedExecutor = ScopedExecutor(cameraExecutor)
+
+        btn_traducir.setOnClickListener {
+            // Código que se ejecuta cuando se hace click en el botón
+            translatedTextfin.text=""
+            consumo_Api(targetLangSelectorfin.selectedItem.toString(), translatedText.text.toString() )
+            Log.i("TAG","Esto enviaremos a la api " +  translatedText.text + " esta lengua " + targetLangSelectorfin.selectedItem)
+        }
+
+        val items = listOf("Kaqchikel",
+            "K'iche'",
+            "Q'eqchi'",
+            "Mam",
+            "Tz'utujil",
+            "Poqomchi'",
+            "Poqomam",
+            "Ixil",
+            "Akateko",
+            "Ch'ol",
+            "Ch'orti'",
+            "Jakaltek",
+            "Popti'",
+            "Q'anjob'al")
+
+        val adapterfin = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item, items
+        )
+        targetLangSelectorfin.adapter = adapterfin
 
         viewModel.executor = cameraExecutor
 
@@ -166,7 +198,7 @@ class MainFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-      /*  viewModel.sourceLang.observe(viewLifecycleOwner, Observer { srcLang.text = it.displayName })
+        viewModel.sourceLang.observe(viewLifecycleOwner, Observer { srcLang.text = it.displayName })
         viewModel.translatedText.observe(viewLifecycleOwner, Observer { resultOrError ->
             resultOrError?.let {
                 if (it.error != null) {
@@ -184,7 +216,7 @@ class MainFragment : Fragment() {
             }
             progressText.visibility = progressBar.visibility
         })
-*/
+
         overlay.apply {
             setZOrderOnTop(true)
             holder.setFormat(PixelFormat.TRANSPARENT)
@@ -227,6 +259,7 @@ class MainFragment : Fragment() {
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
+
      private fun bindCameraUseCases(cameraProvider: ProcessCameraProvider) {
         // Get screen metrics used to setup camera for full screen resolution
         val metrics = DisplayMetrics().also { viewFinder.display.getRealMetrics(it) }
@@ -265,14 +298,18 @@ class MainFragment : Fragment() {
         var text_back:String = "";
         var text_back_old:Int = 0
         viewModel.sourceText.observe(viewLifecycleOwner, Observer { text_back = it;
-            if(text_back !== srcText.text && text_back !== ""){
+            srcText.text = text_back
+
+/*            if(text_back !== srcText.text && text_back !== ""){
                 srcText.text = text_back
                 if(text_back.length > 0 && text_back_old !== text_back.length){
                     text_back_old = text_back.length
-                    consumo_Api("k'iche'", text_back)
+                    //Log.i("TAG","Esto enviaremos a la api " +  translatedText.text)
+
+                    // consumo_Api("k'iche'", text_back)
                 }
-                Log.i("TAG","Por aqui vamos " +  srcText.text )
-            }
+                Log.i("TAG","Por aqui vamos " +  translatedText.text )
+            }*/
         })
 
         viewModel.imageCropPercentages.observe(viewLifecycleOwner,
@@ -460,9 +497,9 @@ class MainFragment : Fragment() {
         apiService.createMayaLanguageText(token, requestBody).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
-                    translatedText.text = Json.encodeToString(response.body()?.string()).replace("\\n", "").trim()
+                    translatedTextfin.text = Json.encodeToString(response.body()?.string()).replace("\\n", "").trim()
                 } else {
-                    translatedText.text = Json.encodeToString(response.body()?.string()).replace("\\n", "").trim()
+                    translatedTextfin.text = Json.encodeToString(response.body()?.string()).replace("\\n", "").trim()
                     val errorMessage = "Error al crear el idioma maya: ${response.code()}"
                     Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                 }
